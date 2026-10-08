@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 
 public class Main {
@@ -45,67 +45,79 @@ public class Main {
     }
     // una pirvada y otro publico
     public static String solucion(List<NumberToken> nums, int target){
-        return solucionPrivada(nums, target);
+        if (nums == null || nums.isEmpty()){
+            return "La lista de numeros esta vacia";
+        }
+        int resultadoInicial = nums.get(0).getNumber();
+        // sirve para recordar la operaciones que llevaron a ese resultado
+        String expresionInicial = String.valueOf(resultadoInicial);
+        // crear los estado fallidos, usamos un Set para esto, un set es parecido a un alista solo que no permite duplicados
+        Set<String> estadosFallidos = new HashSet<>();
+        return solucionPrivada(nums, target, 1, resultadoInicial, expresionInicial, estadosFallidos);
     }
 
-    private static String solucionPrivada(List<NumberToken> nums, int target){
-        // logica para encontrar la solucion
-        Stack<NumberToken> stack = new Stack<>();
-        int countSelecciones = 0;
-        int resultado = 0;
-        boolean encontrado = false;
-        // eleccion
-        // restricciones
-        // solucion
-        // retroceder, hay que podar
-        // se pude memorizar el resultado de la solucion para no repetir el mismo calculo
-        // operaciones : '+', '-', '*', '/', no creo que haga falta el enum
-
+    private static String solucionPrivada(List<NumberToken> nums, int target, int posicion, int resultadoActual, String expresion, Set<String> estadosFallidos){
         // caso base
-        if (resultado == target && encontrado) {
-            return "Solucion encontrada: " + stack.toString();
-        }
-
-        // eleccion y caso recursivo
-        for (NumberToken num : nums) {
-            stack.push(num);
-            // los problemas son varios, hay que tener cuidado con el resultado, si es mayor al target, hay que retroceder
-            // y hay que probar con las demas operaciones
-            resultado += num.getNumber();
-            countSelecciones++;
-            if (resultado == target) {
-                encontrado = true;
-                return "Solucion encontrada: " + stack.toString();
-            } else if (resultado < target) {
-                String res = solucionPrivada(nums, target);
-                if (res != null) {
-                    return res;
-                }
+        if (posicion == nums.size()){
+            if (resultadoActual == target){
+                return expresion;
+            }else{
+                return null;
             }
-            // esto no sé si es correcto, pero hay que retroceder y probar con las demas operaciones
-            stack.pop();
-            resultado -= num.getNumber();
-            countSelecciones--;
         }
-        return null;
+
+        String estadoActual = resultadoActual + "," + posicion;
+        // poda
+        if (estadosFallidos.contains(estadoActual)){
+            return null;
+        }
+        // caso recursivo
+        // no representa como tal el siguiente numero, sino el numero actual
+        NumberToken numeroActual = nums.get(posicion);
+        int valorActual = numeroActual.getNumber();
+        // hay que definir bien que son las podas
+        // una poda normalmente se define como una condicion que nos permite descartar un camino de busqueda
+        // aqui realmente la unica poda que tenemos es la division por cero, por que sabemos que no podemos dividir por cero, y si lo hacemos, el resultado es indefinido
+        // para más exactitud, en este problema podemos decir que una poda es una condicion que permite descartar una eleccion antes de consumir los numeros de la lista
+        // por que sabemos que es invalida (division por 0), o que ya fue explorada (memoizacion)
+       for (char c : OPERADORES){
+            int nuevoResultado = 0;
+            switch (c){
+                case '+':
+                    nuevoResultado = resultadoActual + valorActual;
+                    break;
+                case '-':
+                    nuevoResultado = resultadoActual - valorActual;
+                    break;
+                case '*':
+                    nuevoResultado = resultadoActual * valorActual;
+                    break;
+                case '/':
+                    // esto es muy importante, aqui van las podas
+                    if (valorActual == 0) {
+                        continue; // evitar division por cero
+                    }
+                    if (resultadoActual % valorActual != 0) {
+                        continue; // evitar resultados no enteros
+                    }
+                    nuevoResultado = resultadoActual / valorActual;
+                    break;
+            }
+            String nuevaExpresion = "(" + expresion + " " + c + " " + valorActual + ")";
+            String solucion = solucionPrivada(nums, target, posicion + 1, nuevoResultado, nuevaExpresion, estadosFallidos);
+            if (solucion != null){
+                return solucion;
+            }
+       }
+       estadosFallidos.add(estadoActual);
+       return null;
     }
 
-    // podriamos hacer como hace el profe, un metodo que
-    // se una lista de numeros, que devuelvan una lista de numeros que sumen, multipliquen, dividan o resten a un target,
-    // y que devuelva una lista de listas de numeros que cumplan con la condicion
-    private List<NumberToken> combinaciones(List<NumberToken> nums, int target) {
-        List<NumberToken> result = new ArrayList<>();
-        // logica para encontrar las combinaciones
-        NumberToken tokenSuma = new NumberToken(target);// aqui deberia de ir la suma de los numeros, pero no se como hacerlo
-        NumberToken tokenResta = new NumberToken(target);
-        NumberToken tokenMultiplicacion = new NumberToken(target);
-        NumberToken tokenDivision = new NumberToken(target);
+    private static final char[] OPERADORES = {'+', '-', '*', '/'};
 
-        return result;
-    }
 
     public static void main(String[] args) {
-        List<NumberToken> tokens = tokenizer("234, -232");
+        List<NumberToken> tokens = Main.tokenizer("234, -232");
 
         System.out.println("Tokens: ");
         System.out.println(tokens);
