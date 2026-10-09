@@ -38,11 +38,10 @@ public class Main {
         return result;
     }
 
-
-
     public static String traductor(List<Integer> numbers) {
         return tokenizer(numbers.toString()).toString();
     }
+
     // una pirvada y otro publico
     public static String solucion(List<NumberToken> nums, int target){
         if (nums == null || nums.isEmpty()){
@@ -117,14 +116,29 @@ public class Main {
 
 
     public static void main(String[] args) {
-        List<NumberToken> tokens = Main.tokenizer("234, -232");
+        boolean run = false;
+        do{
+            Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Tokens: ");
-        System.out.println(tokens);
+            System.out.println("Sistema de completado de operadores para opereaciones basicas");
+            System.out.println("Continuar? (1:Si) (0:No)");
+            String runOp = scanner.nextLine();
 
-        System.out.println("Simbolo: ");
-        for (NumberToken token : tokens) {
-            System.out.println(token);
-        }
+            if(!Objects.equals(runOp, "1") && !Objects.equals(runOp, "0")){
+
+            } else if(Objects.equals(runOp, "1")){
+                System.out.println("Digite los numeros (positivos o negativos) a evaluar separados por espacios");
+                String numsIn = scanner.nextLine();
+                System.out.println("Digite el valor equivalente al resultado esperado de la operacion");
+                String resultIn = scanner.nextLine();
+
+
+                List<NumberToken> tokens = Main.tokenizer(numsIn);
+                System.out.println("Solucion: " + solucion(tokens,Integer.parseInt(resultIn)));
+            } else {
+                break;
+            }
+            scanner.close();
+        }while(run);
     }
 }
