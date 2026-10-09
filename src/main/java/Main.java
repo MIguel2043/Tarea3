@@ -127,6 +127,7 @@ public class Main {
             if(!Objects.equals(runOp, "1") && !Objects.equals(runOp, "0")){
 
             } else if(Objects.equals(runOp, "1")){
+                System.out.println("Los operadores que se toman en cuenta son: +, -, *,/\n");
                 System.out.println("Digite los numeros (positivos o negativos) a evaluar separados por espacios");
                 String numsIn = scanner.nextLine();
                 System.out.println("Digite el valor equivalente al resultado esperado de la operacion");
